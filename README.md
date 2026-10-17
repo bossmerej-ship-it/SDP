@@ -2,6 +2,12 @@
 
 **Topic B: Online Order Processing. Java 17.**
 
+**Student:** Kuatbay Merey
+
+**Group:** SE-2537
+
+[GitHub repository](https://github.com/bossmerej-ship-it/SDP)
+
 There are only six Java files:
 
 - `src/Main.java` - console menu; uses only the facade.
