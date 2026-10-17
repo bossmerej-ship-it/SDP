@@ -1,0 +1,79 @@
+@startuml
+title Assignment 4 - Online Order Processing Facade
+skinparam classAttributeIconSize 0
+hide empty members
+class Main <<Client>> {
+  +{static} main(args: String[]): void
+}
+class OrderFacade <<Facade>> {
+  -inventory: InventoryService
+  -payments: PaymentProcessor
+  -shipping: ShippingService
+  -notifications: NotificationService
+  -orders: Map<UUID, Order>
+  +OrderFacade()
+  +listProducts(): List<Product>
+  +placeOrder(cart: Cart, customer: Customer): OrderReceipt
+  +cancelOrder(orderId: UUID): OrderReceipt
+}
+class InventoryService <<Subsystem>> {
+  -catalog: Map<String, Product>
+  -stock: Map<String, Integer>
+  -reservations: Map<UUID, Cart>
+  +InventoryService(products: List<Product>)
+  +listProducts(): List<Product>
+  +calculateTotal(cart: Cart): BigDecimal
+  +reserve(orderId: UUID, cart: Cart): void
+  +release(orderId: UUID): void
+  +hasReservation(orderId: UUID): boolean
+}
+class PaymentProcessor <<Subsystem>> {
+  -charges: Map<UUID, BigDecimal>
+  +charge(orderId: UUID, amount: BigDecimal, method: PaymentMethod): void
+  +refund(orderId: UUID): void
+  +chargedAmount(orderId: UUID): BigDecimal
+  +totalCharged(): BigDecimal
+}
+class ShippingService <<Subsystem>> {
+  -shipments: Map<UUID, String>
+  +schedule(orderId: UUID, customer: Customer): String
+  +cancel(orderId: UUID): void
+  +isScheduled(orderId: UUID): boolean
+  +activeShipmentCount(): int
+}
+class NotificationService <<Subsystem>> {
+  -outbox: List<String>
+  +send(customer: Customer, orderId: UUID, status: OrderStatus): void
+  +messages(): List<String>
+}
+class Cart <<record>> {
+  +items(): Map<String, Integer>
+}
+class Customer <<record>>
+class Product <<record>>
+class OrderReceipt <<record>>
+enum PaymentMethod
+enum OrderStatus
+class OrderException
+Main ..> OrderFacade : uses only facade operations
+Main ..> Cart
+Main ..> Customer
+Main ..> OrderReceipt
+OrderFacade --> InventoryService
+OrderFacade --> PaymentProcessor
+OrderFacade --> ShippingService
+OrderFacade --> NotificationService
+OrderFacade ..> OrderReceipt : returns
+OrderFacade ..> OrderException : throws
+InventoryService ..> Cart
+InventoryService ..> Product
+ShippingService ..> Customer
+NotificationService ..> Customer
+NotificationService ..> OrderStatus
+PaymentProcessor ..> PaymentMethod
+note bottom of OrderFacade
+  Services share an order UUID and workflow data.
+  Services have no references back to the facade.
+  Service wiring constructor is package-private for tests.
+end note
+@enduml
