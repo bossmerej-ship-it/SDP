@@ -1,8 +1,0 @@
-* text=auto
-*.java text eol=lf
-*.md text eol=lf
-*.sh text eol=lf
-*.ps1 text eol=lf
-*.svg text eol=lf
-*.puml text eol=lf
-*.pdf binary
